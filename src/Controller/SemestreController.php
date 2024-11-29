@@ -6,7 +6,10 @@ use App\Entity\Semestre;
 use App\Form\SemestreType;
 use App\Repository\SemestreRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Util\Json;
+use SemestreService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,6 +24,7 @@ final class SemestreController extends AbstractController
             'semestres' => $semestreRepository->findAll(),
         ]);
     }
+
 
     #[Route('/new', name: 'app_semestre_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -40,6 +44,15 @@ final class SemestreController extends AbstractController
             'semestre' => $semestre,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/semestres', name: 'app_Rest_semestre_show', methods: ['GET'])]
+    public function semestreDetail(SemestreRepository $semestreRepository): JsonResponse
+    {
+        // Assurez-vous de passer un entier valide à la méthode
+        $etudiantId = 27757;
+        $result = $semestreRepository->findEtudiantNotes($etudiantId);
+        return new JsonResponse($result);
     }
 
     #[Route('/{id}', name: 'app_semestre_show', methods: ['GET'])]
@@ -71,7 +84,7 @@ final class SemestreController extends AbstractController
     #[Route('/{id}', name: 'app_semestre_delete', methods: ['POST'])]
     public function delete(Request $request, Semestre $semestre, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$semestre->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $semestre->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($semestre);
             $entityManager->flush();
         }

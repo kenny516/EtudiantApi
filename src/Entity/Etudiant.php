@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EtudiantRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,6 +23,9 @@ class Etudiant
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date_naissance = null;
+
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'etudiant')]
+    private Collection $notes;
 
     public function getId(): ?int
     {

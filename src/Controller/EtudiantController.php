@@ -59,6 +59,7 @@ final class EtudiantController extends AbstractController
                 'id' => $etudiant->getId(),
                 'nom' => $etudiant->getNom(),
                 'prenom' => $etudiant->getPrenom(),
+                'dateNaissance' => $etudiant->getDateNaissance()
             ];
         }, $etudiants);
         $meta = [

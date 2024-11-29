@@ -24,6 +24,31 @@ class Note
     #[ORM\JoinColumn(nullable: false)]
     private ?Etudiant $etudiant = null;
 
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $session = null;
+
+    private ?string $resultat = null;
+
+    public function getSession(): ?\DateTimeInterface
+    {
+        return $this->session;
+    }
+
+    public function setSession(?\DateTimeInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getResultat(): ?string
+    {
+        return $this->resultat;
+    }
+
+    public function setResultat(?string $resultat): void
+    {
+        $this->resultat = $resultat;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

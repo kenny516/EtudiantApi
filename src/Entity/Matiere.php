@@ -2,6 +2,7 @@
 namespace App\Entity;
 
 use App\Repository\MatiereRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MatiereRepository::class)]
@@ -18,6 +19,9 @@ class Matiere
     #[ORM\ManyToOne(targetEntity: Semestre::class, inversedBy: 'matieres')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Semestre $semestre = null;
+
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'matiere')]
+    private Collection $notes;
 
     #[ORM\Column(length: 255)]
     private ?string $intitule = null;
