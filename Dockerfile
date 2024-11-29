@@ -26,8 +26,8 @@ COPY . .
 # Installer les dépendances de Symfony sans exécuter les scripts post-installation
 RUN composer install --optimize-autoloader --no-dev --no-scripts
 
-# Configurer les permissions
-RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
+# Créer le répertoire var pour éviter l'erreur de permissions
+RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
 # Configurer le port pour Apache
 EXPOSE 8000
