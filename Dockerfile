@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     opcache \
     zip
 
-# Installer Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Installer Composer directement
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Définir le répertoire de travail
 WORKDIR /var/www/html
@@ -23,8 +23,8 @@ WORKDIR /var/www/html
 # Copier les fichiers du projet dans le conteneur
 COPY . .
 
-# Installer les dépendances de Symfony
-RUN composer install --optimize-autoloader --no-dev
+# Installer les dépendances de Symfony sans exécuter les scripts post-installation
+RUN composer install --optimize-autoloader --no-dev --no-scripts
 
 # Configurer les permissions
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
