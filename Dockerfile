@@ -1,7 +1,7 @@
-# Utiliser une image PHP officielle avec Apache et PHP 8.2
+# Use an official PHP image with Apache and PHP 8.2
 FROM php:8.2-apache
 
-# Installer les extensions PHP nécessaires
+# Install necessary PHP extensions
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libpq-dev \
@@ -14,23 +14,32 @@ RUN apt-get update && apt-get install -y \
     opcache \
     zip
 
-# Installer Composer directement
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Définir le répertoire de travail
+# Set the DirectoryIndex to prioritize index.php
+RUN echo 'DirectoryIndex index.php' >> /etc/apache2/apache2.conf
+
+# Update the Apache configuration to use the public directory as the document root
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Enable mod_rewrite
+RUN a2enmod rewrite
+
+# Set working directory
 WORKDIR /var/www/html
 
-# Copier les fichiers du projet dans le conteneur
+# Copy project files into the container
 COPY . .
 
-# Installer les dépendances de Symfony sans exécuter les scripts post-installation
+# Install Symfony dependencies
 RUN composer install --optimize-autoloader --no-dev --no-scripts
 
-# Créer le répertoire var pour éviter l'erreur de permissions
+# Create the var directory and set permissions
 RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
-# Configurer le port pour Apache
+# Expose port 8000
 EXPOSE 8000
 
-# Commande pour démarrer Apache
+# Start Apache
 CMD ["apache2-foreground"]
