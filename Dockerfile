@@ -33,12 +33,14 @@ WORKDIR /var/www/html
 # Copy project files into the container
 COPY . .
 
-# Install Symfony dependencies
-RUN composer install --no-interaction --no-progress --optimize-autoloader --no-dev
+# Allow Composer plugins to run (fix for root user)
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Fix permissions for writable directories
-RUN mkdir -p /var/www/html/var /var/www/html/public && \
-    chown -R www-data:www-data /var/www/html/var /var/www/html/public
+# Install Symfony dependencies
+RUN composer install --no-interaction --no-progress --optimize-autoloader --no-dev || composer install --no-dev --no-scripts
+
+# Create the var directory and set permissions
+RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
 # Expose port 80 (standard for HTTP)
 EXPOSE 80
