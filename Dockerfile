@@ -21,8 +21,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Set the DirectoryIndex to prioritize index.php
 RUN echo 'DirectoryIndex index.php' >> /etc/apache2/apache2.conf
 
-# Update the Apache configuration to use the public directory as the document root
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+# Afficher le contenu du fichier pour vérifier les modifications
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
+    && echo "----- Config After Modification -----" \
+    && cat /etc/apache2/sites-available/000-default.conf
+
 
 # Enable mod_rewrite
 RUN a2enmod rewrite
