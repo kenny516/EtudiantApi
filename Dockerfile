@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     pdo \
     pdo_pgsql \
     opcache \
-    zip
+    zip \
+    && apt-get clean
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -33,13 +34,14 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install Symfony dependencies
-RUN composer install --optimize-autoloader --no-dev --no-scripts
+RUN composer install --no-interaction --no-progress --optimize-autoloader --no-dev
 
-# Create the var directory and set permissions
-RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var /var/www/html/public
+# Fix permissions for writable directories
+RUN mkdir -p /var/www/html/var /var/www/html/public && \
+    chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
-# Expose port 8000
-EXPOSE 8000
+# Expose port 80 (standard for HTTP)
+EXPOSE 80
 
 # Start Apache
 CMD ["apache2-foreground"]
