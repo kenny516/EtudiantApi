@@ -1,52 +1,26 @@
-# Use an official PHP image with Apache and PHP 8.2
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Install necessary PHP extensions
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    libicu-dev \
-    libpq-dev \
-    libzip-dev \
+    git \
     unzip \
-    && docker-php-ext-install \
-    intl \
-    pdo \
-    pdo_pgsql \
-    opcache \
-    zip \
-    && apt-get clean
+    libpq-dev \
+    && docker-php-ext-install pdo_pgsql
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Set the DirectoryIndex to prioritize index.php
-RUN echo 'DirectoryIndex index.php' >> /etc/apache2/apache2.conf
-
-# Afficher le contenu du fichier pour vérifier les modifications
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
-    && echo "----- Config After Modification -----" \
-    && cat /etc/apache2/sites-available/000-default.conf
-
-
-# Enable mod_rewrite
-RUN a2enmod rewrite
+COPY --from=composer:2.8.3 /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /var/www/symfony
 
-# Copy project files into the container
-COPY . .
+# Copy application code
+COPY . /var/www/symfony
 
-# Allow Composer plugins to run (fix for root user)
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# Install Symfony CLI (optional)
+RUN curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
-# Install Symfony dependencies
-RUN composer install --no-interaction --no-progress --optimize-autoloader --no-dev || composer install --no-dev --no-scripts
+# Expose port 8000 for Symfony server
+EXPOSE 8000
 
-# Create the var directory and set permissions
-RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var /var/www/html/public
-
-# Expose port 80 (standard for HTTP)
-EXPOSE 80
-
-# Start Apache
-CMD ["apache2-foreground"]
+CMD ["php-fpm"]
